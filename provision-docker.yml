@@ -1,0 +1,30 @@
+-
+  name: Install Docker CentOS
+  hosts: linux_nodes
+  tasks:
+    - name: Install required packages
+      yum: name='{{item}}' state=present
+      with_items:
+        - yum-utils
+        - device-mapper-persistent-data
+        - lvm2
+    - name: Add docker repo
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+    - name: Install Docker components
+      yum: name='{{item}}' state=present
+      with_items:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+    - name: Start and enable docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+    - name: Add osboxes user to docker group
+      user:
+        name: osboxes
+        groups: docker
+        append: yes
